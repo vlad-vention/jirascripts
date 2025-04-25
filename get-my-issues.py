@@ -1,24 +1,10 @@
-from dotenv import load_dotenv
-import os
-from jira import JIRA
+from jira_util import login
 
 # Construct the hyperlink using OSC 8 escape sequences
 def get_hyperlink(url, text):
     return f"\033]8;;{url}\033\\{text}\033]8;;\033\\"
 
-
-# Load environment variables
-load_dotenv()
-JIRA_SERVER = os.getenv('JIRA_SERVER')
-JIRA_USERNAME = os.getenv('JIRA_USERNAME')
-JIRA_API_TOKEN = os.getenv('JIRA_API_TOKEN')
-
-
-# Log in to Jira
-jira = JIRA(server=JIRA_SERVER, basic_auth=(JIRA_USERNAME, JIRA_API_TOKEN))
-myself = jira.myself()
-print(f"Logged in as: {myself['displayName']} ({myself['emailAddress']})")
-
+jira = login()
 
 # Query issues assigned to user
 jql_query = 'assignee = currentUser() ORDER BY priority DESC'
@@ -35,7 +21,7 @@ status_order = {
     "DONE": 5,
     "REJECTED": 6
 }
-issues = sorted(issues, key=lambda issue: status_order.get(issue.fields.status.name.upper(), 100))
+issues = sorted(issues, key=lambda issue: issue.fields.status.id)
 
 
 # Pretty print result
@@ -47,4 +33,3 @@ for issue in issues:
     summary = issue.fields.summary
     status = f"{issue.fields.status.name}".ljust(status_width)
     print(f"{key}: {status} {summary}")
-
