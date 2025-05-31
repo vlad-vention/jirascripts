@@ -1,6 +1,7 @@
 from jira_util import login
 import csv
 import datetime
+import os
 
 # Construct the hyperlink using OSC 8 escape sequences
 def get_hyperlink(url, text):
@@ -37,9 +38,13 @@ while True:
 issues = all_issues
 print(f"\nFound {len(issues)} total issues in Robot project:\n")
 
+# Create reports directory if it doesn't exist
+reports_dir = "reports"
+os.makedirs(reports_dir, exist_ok=True)
+
 # Create CSV file
 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-csv_filename = f"robot_project_issues_{timestamp}.csv"
+csv_filename = os.path.join(reports_dir, f"robot_project_issues_{timestamp}.csv")
 
 print(f"Creating CSV file: {csv_filename}")
 
